@@ -2,29 +2,46 @@ package com.rfelixr.applicationcontentprovider.database
 
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.content.Context
+import android.content.UriMatcher
 import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
+import android.media.UnsupportedSchemeException
 import android.net.Uri
+import android.provider.BaseColumns._ID
+import com.rfelixr.applicationcontentprovider.database.NotesDatabasesHelper.Companion.TABLE_NOTES
 
 class NotesProvider : ContentProvider() {
 
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
-        //com.rfelixr.applicationcontentprovider.provider
-        TODO("Implement this to handle requests to delete one or more rows")
+    private lateinit var mUriMatcher: UriMatcher
+    private lateinit var dbHelper: NotesDatabasesHelper
+
+    override fun onCreate(): Boolean {
+        mUriMatcher = UriMatcher(UriMatcher.NO_MATCH)
+        mUriMatcher.addURI(AUTHORITY,"notes", NOTES)
+        mUriMatcher.addURI(AUTHORITY,"notes/#", NOTES_BY_ID)
+
+        if (context != null) dbHelper = NotesDatabasesHelper(context as Context)
+
+        return true
     }
 
-    override fun getType(uri: Uri): String? {
-        TODO(
-            "Implement this to handle requests for the MIME type of the data" +
-                    "at the given URI"
-        )
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
+        if (mUriMatcher.match(uri) == NOTES_BY_ID){
+            val db: SQLiteDatabase = dbHelper.writableDatabase
+            val linesAffect = db.delete(TABLE_NOTES,"$_ID = ?", arrayOf(uri.lastPathSegment))
+            db.close()
+            context?.contentResolver?.notifyChange(uri,null)
+
+            return linesAffect
+
+        }else throw UnsupportedSchemeException("Uri inválida para exclusão!")
     }
+
+    override fun getType(uri: Uri): String?  = throw UnsupportedSchemeException("Uri não implementada")
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
         TODO("Implement this to handle requests to insert a new row.")
-    }
-
-    override fun onCreate(): Boolean {
-        TODO("Implement this to initialize your content provider on startup.")
     }
 
     override fun query(
@@ -39,5 +56,14 @@ class NotesProvider : ContentProvider() {
         selectionArgs: Array<String>?
     ): Int {
         TODO("Implement this to handle requests to update one or more rows.")
+    }
+
+    companion object{
+        const val AUTHORITY = "com.rfelixr.applicationcontentprovider.provider"
+        val BASE_URI = Uri.parse("content://$AUTHORITY")
+        val URI_NOTES = Uri.withAppendedPath(BASE_URI,"notes")
+
+        const val NOTES = 1
+        const val NOTES_BY_ID = 2
     }
 }
