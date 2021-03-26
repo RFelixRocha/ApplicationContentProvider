@@ -8,17 +8,19 @@ import android.provider.BaseColumns._ID
 class NotesDatabasesHelper (context: Context):SQLiteOpenHelper(context, NAME_BANCO, null, VERSAO_ATUAL){
 
     companion object{
+
         private val NAME_BANCO = "databaseNotes.db"
         private val VERSAO_ATUAL = 1
+
+        const val TABLE_NOTES = "Notes"
+        const val COLUMNS_TITLE = "title"
+        const val COLUMNS_DESCRIPTION = "description"
     }
 
-    val TABLE_NAME = "Notes"
 
-    val COLUMNS_TITLE = "title"
-    val COLUMNS_DESCRIPTION = "description"
 
-    val DROP_TABLE = "DROP TABLE IF EXISTS $TABLE_NAME"
-    val CREATE_TABLE = "CREATE TABLE $TABLE_NAME (" +
+    val DROP_TABLE = "DROP TABLE IF EXISTS $TABLE_NOTES"
+    val CREATE_TABLE = "CREATE TABLE $TABLE_NOTES (" +
             "$_ID INTEGER NOT NULL PRIMARY KEY," +
             "$COLUMNS_TITLE TEXT NOT NULL," +
             "$COLUMNS_DESCRIPTION TEXT NOT NULL)"
