@@ -8,8 +8,11 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.rfelixr.applicationcontentprovider.R
+import com.rfelixr.applicationcontentprovider.database.NotesDatabasesHelper.Companion.COLUMNS_DESCRIPTION
+import com.rfelixr.applicationcontentprovider.database.NotesDatabasesHelper.Companion.COLUMNS_TITLE
+import com.rfelixr.applicationcontentprovider.interfaces.NoteClickedListener
 
-class NotesAdapter(): RecyclerView.Adapter<NotesViewHolder>(){
+class NotesAdapter(private val listener: NoteClickedListener): RecyclerView.Adapter<NotesViewHolder>(){
 
     private var mCursor: Cursor? = null
 
@@ -17,12 +20,24 @@ class NotesAdapter(): RecyclerView.Adapter<NotesViewHolder>(){
 
 
     override fun onBindViewHolder(holder: NotesViewHolder, position: Int) {
-        TODO("Not yet implemented")
+
+        mCursor?.moveToPosition(position)
+
+        holder.noteTile.text = mCursor?.getString(mCursor?.getColumnIndex(COLUMNS_TITLE) as Int)
+        holder.noteDescription.text = mCursor?.getString(mCursor?.getColumnIndex(COLUMNS_DESCRIPTION) as Int)
+
+        holder.notesButtonRemove.setOnClickListener{
+            mCursor?.moveToPosition(position)
+            listener.noteRemoveItem(mCursor as Cursor)
+            notifyDataSetChanged()
+        }
+
+        holder.itemView.setOnClickListener{
+            listener.noteClickedItem(mCursor as Cursor)
+        }
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getItemCount(): Int  = if (mCursor != null)mCursor?.count as Int else 0
 
     fun setCursor(newCursor: Cursor?){
         mCursor = newCursor
