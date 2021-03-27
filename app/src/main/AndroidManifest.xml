@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ApplicationContentProvider"
-        android:fullBackupContent="">
+        android:fullBackupContent="true">
         <provider
             android:name=".database.NotesProvider"
             android:authorities="com.rfelixr.applicationcontentprovider.provider"
